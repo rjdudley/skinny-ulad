@@ -1,0 +1,118 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Skinny ULAD",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "object",
+            "properties": {
+                "firstName": {
+                    "type": "string",
+                    "description": "The first name of the individual represented by the parent object."
+                },
+                "middleName": {
+                    "type": "string",
+                    "description": "The middle name of the individual represented by the parent object."
+                },
+                "lastName": {
+                    "type": "string",
+                    "description": "The last name of the individual represented by the parent object."
+                },
+                "suffix": {
+                    "type": "string",
+                    "description": "The name suffix of the individual represented by the parent object. (E.g., JR = Junior, SR = Senior, etc.).\n"
+                }
+            },
+            "additionalProperties": false
+        },
+        "address": {
+            "type": "object",
+            "properties": {
+                "addressLineText": {
+                    "type": "string",
+                    "description": "The address with the address number, pre-directional, street name, post-directional, address unit designators and address unit value.  URLA form field 1a.13.1"
+                },
+                "addressUnitIdentifier": {
+                    "type": "string",
+                    "description": "The identifier value associated with the Secondary Address Unit Designator. Example: 123, C, B1C, etc.  URLA form field 1a.13.2"
+                },
+                "addressUnitDesignator": {
+                    "type": "string",
+                    "description": "A value from a MISMO prescribed list that specifies a further level of detail for a street address, for example, Suite or Unit. This list is based on the USPS Publication 28 on Postal Addressing Standards with the addition of Condo based on mortgage industry need.  URLA form field 1a.13.2",
+                    "enum": [
+                        "Apartment",
+                        "Basement",
+                        "Building",
+                        "Condo",
+                        "Department",
+                        "Floor",
+                        "Front",
+                        "Hangar",
+                        "Key",
+                        "Lobby",
+                        "Lot",
+                        "Lower",
+                        "Office",
+                        "Penthouse",
+                        "Pier",
+                        "Rear",
+                        "Room",
+                        "Side",
+                        "Space",
+                        "Stop",
+                        "Suite",
+                        "Trailer",
+                        "Unit",
+                        "Upper"
+                    ]
+                },
+                "cityName": {
+                    "type": "string",
+                    "description": "The name of the city or Military APO FPO designation.  URLA form field 1a.13.3"
+                },
+                "stateCode": {
+                    "type": "string",
+                    "maxLength": 2,
+                    "description": "The two-character representation of the US state, US Territory, Canadian Province, Military Address abbreviation of AE, AP, AA or Territory.  URLA form field 1a.13.4"
+                },
+                "postalCode": {
+                    "type": "string",
+                    "description": "The postal code (ZIP Code in the US) for the address. ZIP Code may be either 5 or 9 digits.  URLA form field 1a.13.5"
+                },
+                "countyName": {
+                    "type": "string",
+                    "description": "The name of the county within a state. (Designator Name based on FIPS Publication 6-4)"
+                },
+                "countryCode": {
+                    "type": "string",
+                    "maxLength": 2,
+                    "description": "The two-character representation of the country.  URLA form field 1a.13.6"
+                }
+            },
+            "additionalProperties": false
+        },
+        "phoneNumber": {
+            "type": "object",
+            "properties": {
+                "phoneNumberUsageType": {
+                    "type": "string",
+                    "enum": [
+                        "Home",
+                        "Mobile",
+                        "Work"
+                    ],
+                    "description": "A value from a MISMO prescribed list that specifies the location associated with the Contact Point Type (for example, Phone).\n"
+                },
+                "x_phoneNumberType": {
+                    "type": "string",
+                    "description": "The type of phone service as determined by a verification platform.  Usually \"cellular\" or \"landline\".  Many borrowers are using mobile devices as their \"home\" phone, there are slightly different regulations between cellular and landlines.  This also lets us know if a number is textable."
+                },
+                "phoneNumber": {
+                    "type": "string",
+                    "description": "The telephone number for the contact.  Unformatted for now."
+                }
+            },
+            "additionalProperties": false
+        }
+    }
+}

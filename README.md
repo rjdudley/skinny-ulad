@@ -6,7 +6,7 @@ As a data architect. I was responsible for develping schemas for internal use.  
 
 # Why is MISMO/ULAD Unsuitable for APIs?
 
-MISMO is an extensive specifiication, meant to cover all the data needs in all the uses of the mortgage industry in one document.  You need a lot of RAM just to open the full schema in an XML modeling tool.  It was initially designed for large transfers of mortgage info, on the scale o 100s-1000s of documents, in a highly normalized using arcroles.  It's like EDI via XML.  And that's fine, very suitable for a certain use case.
+MISMO is an extensive specifiication, meant to cover all the data needs in all the uses of the mortgage industry in one document.  You need a lot of RAM just to open the full schema in an XML modeling tool.  It was initially designed for large transfers of mortgage info, on the scale of 100s-1000s of documents, in a highly normalized using arcroles.  It's like EDI via XML.  And that's fine, very suitable for a certain use case.
 
 Because it was meant to be normalized and contain a lit of documents, it's very deeply nested.  Following the XML specification you're something like 17 layers of XML markup before you hit your first piece of data (I no longer have access to MISMO and don't remember exactly, but it's around that).  Even when a use case specific subset is designed (like the ULAD or UCD), the XML honors this deep nesting.  And that's the problem.  Modern APIs are designed for accessing single resources, use JSON as the format, and have a flat or shallow nesting.
 
@@ -20,6 +20,10 @@ This isn't what I'd consider final, but I'm probably not putting additional effo
 
 Those are not part of MISMO, but are common internal data elements.  I took inspiration from the "x-" properties of HTML headers for the naming convention.
 
+# What's included?
+
+At the top level are the two schema definition files.  Folders contain forward-engineered JSON schemas of the respective definitions.  I'd do an OpenAPI version but that requires a more expensive version of the tool than I can personally afford.
+
 # What Modeling Tool Was Used?
 
-This model was developed with Hackolade, which I think is the best modeling tool on the market.  Check it out at [https://hackolade.com/](https://hackolade.com/).
+This model was developed with Hackolade, which I think is the best modeling tool on the market.  Check it out at [https://hackolade.com/](https://hackolade.com/).  The Personal edition I use is very feature-rich and good for a lot of things.

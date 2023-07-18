@@ -1,0 +1,1180 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "title": "Skinny ULAD",
+    "description": "Elements prefixed with \"x_\" are not part of the URLA/ULAD but are common internal use elements.",
+    "properties": {
+        "headers": {
+            "type": "object",
+            "description": "Elements which begin with \"ce_\" are inherited from cloudevents.io. ",
+            "properties": {
+                "cs_specversion": {
+                    "type": "string",
+                    "description": "The version of the schema, correlated to specversion."
+                },
+                "ce_id": {
+                    "type": "string",
+                    "description": "An identifier specific to this event.  ce_source+ce_id must be unique.  Correlates to id."
+                },
+                "ce_source": {
+                    "type": "string",
+                    "description": "URI-reference.  Identifies the context or application/service where the event occurred.  Correlates to source.",
+                    "format": "uri-reference"
+                },
+                "ce_type": {
+                    "type": "string",
+                    "description": "Describes the type of event related to the originating occurrence.  Correlates to type."
+                },
+                "ce_time": {
+                    "type": "string",
+                    "description": "Represents when the event occurred.  RFC 3339 compliance timestamp with UTC offset.",
+                    "format": "time",
+                    "pattern": "yyyy-MM-ddThh:mm:ssZ"
+                },
+                "content-type": {
+                    "type": "string",
+                    "description": "Usually \"application/json\", but values per RFC 2016 and its modifications.  Correlates to datacontenttype."
+                },
+                "correlation_id": {
+                    "type": "string",
+                    "description": "An identifier assigned by the ce_source or ingestion point which should persist through the entire downstream cascade so we can tie them all together."
+                },
+                "x_CRMId": {
+                    "type": "string",
+                    "description": "Identifier assigned by the originating CRM system."
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "cs_specversion",
+                "ce_id",
+                "ce_source",
+                "ce_type"
+            ]
+        },
+        "subjectLoan": {
+            "type": "object",
+            "properties": {
+                "x_OriginatingCompany": {
+                    "type": "string",
+                    "description": "The company which originated the mortgage.",
+                    "contentMediaType": "application/json"
+                },
+                "originatorLoanNumber": {
+                    "type": "string",
+                    "description": "The loan number as assigned by the originating company."
+                },
+                "x_servicerLoanNumber": {
+                    "type": "string",
+                    "description": "The loan number assigned by the current servicer."
+                },
+                "universalLoanNumber": {
+                    "type": "string",
+                    "description": "Also known as Universal Loan Indicator (ULI), this is as specified by the CFPB for registration in MERS."
+                },
+                "agencyCase": {
+                    "type": "string",
+                    "description": "Required by FHA, this is the DU case number.  No longer on the paper form."
+                },
+                "executionDate": {
+                    "type": "string",
+                    "description": "The date the signature was or will be affixed to the document.  URLA form field 6.1 (and 6.2 if >1 borrower)",
+                    "format": "date",
+                    "pattern": "yyyy-MM-dd"
+                },
+                "x_loanVersionNumber": {
+                    "type": "string",
+                    "description": "The version number as assigned by OneLoan.  This is usually the same as the Encompass version number, but not always."
+                },
+                "borrowers": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "borrowerSequenceNumber": {
+                                "type": "integer",
+                                "description": "In a standard ULAD, the primary borrower is 1, coborrower is 2."
+                            },
+                            "x_membershipNumber": {
+                                "type": "string",
+                                "description": "Included for future use"
+                            },
+                            "x_borrowerIdentifier": {
+                                "type": "string",
+                                "description": "An identifier assigned by an internal system to uniquely and universally identify the borrower."
+                            },
+                            "x_PreferredFirstName": {
+                                "type": "string",
+                                "description": "Future use.  The nickname or preferred first name to address the borrower."
+                            },
+                            "name": {
+                                "$ref": "#/$defs/name"
+                            },
+                            "alternateNames": {
+                                "type": "array",
+                                "description": "URLA form fields 1a.2.1 - 1a.2.4",
+                                "items": {
+                                    "$ref": "#/$defs/name"
+                                }
+                            },
+                            "birthDate": {
+                                "type": "string",
+                                "description": "Borrower's date of birth.  URLA form field 1a.4",
+                                "format": "date",
+                                "pattern": "yyyy-MM-dd"
+                            },
+                            "maritalStatusType": {
+                                "type": "string",
+                                "description": "A value from a MISMO prescribed list that specifies the marital status of the party as disclosed by the party.  URLA form field 1a.7",
+                                "enum": [
+                                    "Married",
+                                    "Separated",
+                                    "Unmarried"
+                                ]
+                            },
+                            "taxpayerIdentifier": {
+                                "type": "object",
+                                "properties": {
+                                    "taxpayerIdentifierType": {
+                                        "type": "string",
+                                        "description": "A value from a MISMO prescribed list that classifies identification numbers used by the Internal Revenue Service (IRS) in the administration of tax laws. A Social Security number (SSN) is issued by the SSA; all other taxpayer identification numbers are issued by the IRS.",
+                                        "enum": [
+                                            "IndividualTaxpayerIdentificationNumber",
+                                            "SocialSecurityNumber"
+                                        ]
+                                    },
+                                    "taxpayerIdentifierValue": {
+                                        "type": "string",
+                                        "description": "The value of the taxpayer identifier as assigned by the IRS to the individual or legal entity.  URLA form field 1a.3"
+                                    }
+                                },
+                                "additionalProperties": false
+                            },
+                            "currentResidence": {
+                                "type": "object",
+                                "properties": {
+                                    "monthlyRentAmount": {
+                                        "type": "number",
+                                        "description": "The monthly amount of rent charged for the use of a property.  URLA form field 1a.14.2"
+                                    },
+                                    "borrowerResidencyDurationMonthsCount": {
+                                        "type": "number",
+                                        "description": "The total number of months the borrower (has) resided at the indicated address.  URLA form field 1a.14"
+                                    },
+                                    "borrowerResidencyBasisType": {
+                                        "type": "string",
+                                        "description": "A value from a MISMO prescribed list that specifies the basis on which the borrower lives/lived at the indicated address.  URLA form field 1a.14.1",
+                                        "enum": [
+                                            "LivingRentFree",
+                                            "Own",
+                                            "Rent"
+                                        ]
+                                    },
+                                    "address": {
+                                        "$ref": "#/$defs/address"
+                                    }
+                                },
+                                "additionalProperties": false
+                            },
+                            "priorResidence": {
+                                "type": "object",
+                                "description": "URLA form fields 1a.15 - 1a.16.2",
+                                "properties": {
+                                    "monthlyRentAmount": {
+                                        "type": "number",
+                                        "description": "The monthly amount of rent charged for the use of a property.  URLA form field 1a.14.2"
+                                    },
+                                    "borrowerResidencyDurationMonthsCount": {
+                                        "type": "number",
+                                        "description": "The total number of months the borrower (has) resided at the indicated address.  URLA form field 1a.14"
+                                    },
+                                    "borrowerResidencyBasisType": {
+                                        "type": "string",
+                                        "description": "A value from a MISMO prescribed list that specifies the basis on which the borrower lives/lived at the indicated address.  URLA form field 1a.14.1",
+                                        "enum": [
+                                            "LivingRentFree",
+                                            "Own",
+                                            "Rent"
+                                        ]
+                                    },
+                                    "address": {
+                                        "$ref": "#/$defs/address"
+                                    }
+                                },
+                                "additionalProperties": false
+                            },
+                            "mailingAddress": {
+                                "type": "object",
+                                "description": "URLA form section 1a.17",
+                                "properties": {
+                                    "x_optInToMarketing": {
+                                        "type": "boolean"
+                                    },
+                                    "address": {
+                                        "$ref": "#/$defs/address"
+                                    }
+                                },
+                                "additionalProperties": false
+                            },
+                            "phoneNumbers": {
+                                "type": "array",
+                                "description": "URLA form fields 1a.9 - 1a.11.1\n\nTCPA/DNC/opt-in data elements will be added when they are defined by the Preference Center project.",
+                                "items": {
+                                    "$ref": "#/$defs/phoneNumber"
+                                }
+                            },
+                            "emailAddress": {
+                                "type": "object",
+                                "description": "The email address for the contact.  URLA form field 1a.12",
+                                "properties": {
+                                    "emailAddress": {
+                                        "type": "string",
+                                        "description": "The email address for the contact, as provided."
+                                    },
+                                    "x_standardizedEmail": {
+                                        "type": "string",
+                                        "description": "Future use.  The email address after applying data quality rules.  For example, a Gmail address may have the dots and \"plus tag\" removed.  This address is best used for matching and list management."
+                                    },
+                                    "x_mxDomain": {
+                                        "type": "string",
+                                        "description": "Future use.  The domain of the email service as determined by an MX lookup.  For example, a company using a vanity domain with Google's services would not indicate the capabilities of the email server, and hence which data quality rules we should use."
+                                    },
+                                    "x_optInToMarketing": {
+                                        "type": "boolean",
+                                        "description": "Future use.  Is this email address opted in to marketing emails?"
+                                    },
+                                    "x_isDisposableDomain": {
+                                        "type": "boolean",
+                                        "description": "Future use.  Is this domain a disposable email domain?  This can play a part in scoring or fraud risks."
+                                    }
+                                },
+                                "additionalProperties": false
+                            },
+                            "employers": {
+                                "type": "array",
+                                "description": "Section 1b of the URLA form, and 1d if there is a previous employment also (only if current is <2yrs).  When flattening these for Salesforce and events, there will need to be both a Current and a Previous.",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "employerSequenceNumber": {
+                                            "type": "number"
+                                        },
+                                        "x_DUNS": {
+                                            "type": "string",
+                                            "description": "Future use.  Dun & Bradstreet number, if there is one.  This may be acquired from data enrichments."
+                                        },
+                                        "x_EIN": {
+                                            "type": "string",
+                                            "description": "Future use.  The IRS-assigned Employer Identification Number."
+                                        },
+                                        "employmentStatusType": {
+                                            "type": "string",
+                                            "description": "A value from a MISMO prescribed list that specifies the relative time frame of the employment (current or previous).  URLA form field 1b.1",
+                                            "enum": [
+                                                "Current",
+                                                "Previous"
+                                            ]
+                                        },
+                                        "employerLegalName": {
+                                            "type": "string",
+                                            "description": "The unparsed name of either an individual or a legal entity.  URLA form field 1b.2"
+                                        },
+                                        "employmentPositionDescription": {
+                                            "type": "string",
+                                            "description": "A free-form text field describing the borrower's employment position or title.  URLA form field 1b.5"
+                                        },
+                                        "employmentStartDate": {
+                                            "type": "string",
+                                            "description": "The date that the borrower started the employment position with the employer.  URLA form field 1b.6",
+                                            "format": "date",
+                                            "pattern": "yyyy-MM-dd"
+                                        },
+                                        "employmentEndDate": {
+                                            "type": "string",
+                                            "description": "The date that the borrower ended the employment position with the employer.  This is not used for current employment.  URLA form field 1d.6",
+                                            "format": "date",
+                                            "pattern": "yyyy-MM-dd"
+                                        },
+                                        "employmentTimeInLineOfWorkMonthsCount": {
+                                            "type": "number",
+                                            "description": "The total number of complete months the borrower has been employed in the line of work or type of business. URLA form field 1b.7"
+                                        },
+                                        "specialBorrowerEmployerRelationshipIndicator": {
+                                            "type": "boolean",
+                                            "description": "When true, indicates that the borrower is employed by a family member, property seller, real estate agent/broker, or other party to the transaction.  URLA form field 1b.8"
+                                        },
+                                        "employmentBorrowerSelfEmployedIndicator": {
+                                            "type": "boolean",
+                                            "description": "When true, indicates that in the referenced employment the borrower is self-employed.  URLA form 1b.9"
+                                        },
+                                        "ownershipInterestType": {
+                                            "type": "string",
+                                            "description": "A value from a MISMO prescribed list that specifies the percentage of the total business of the borrower's self-owned business.  URLA form 1b.9.1",
+                                            "enum": [
+                                                "GreaterThanOrEqualTo25Percent",
+                                                "LessThan25Percent"
+                                            ]
+                                        },
+                                        "employmentMonthlyIncomeAmount": {
+                                            "type": "number",
+                                            "description": "The amount per month of income associated with the borrower's employment.  URLA form field 1b.9.2"
+                                        },
+                                        "incomeItems": {
+                                            "type": "array",
+                                            "description": "The components of the total monthly income.  URLA form section 1b.10\n\nBreaking from the design of the URLA/ULAD, employment income is indicated here.  Non-employment income is indicated in incomeOtherSources.",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "incomeSequenceNumber": {
+                                                        "type": "number",
+                                                        "minimum": 1
+                                                    },
+                                                    "incomeType": {
+                                                        "type": "string",
+                                                        "description": "A value from a MISMO prescribed list that specifies borrower income items on a mortgage loan application.",
+                                                        "enum": [
+                                                            "Base",
+                                                            "Bonus",
+                                                            "Commissions",
+                                                            "Other",
+                                                            "Overtime"
+                                                        ]
+                                                    },
+                                                    "currentIncomeMonthlyTotalAmount": {
+                                                        "type": "number",
+                                                        "description": "The monthly total amount for the specified Income Item."
+                                                    },
+                                                    "monthlyMilitaryEntitlementsAmount": {
+                                                        "type": "number",
+                                                        "description": "The total monthly amount of funds provided or credited to military personnel for specific needs, such as food or housing, over and above base pay."
+                                                    }
+                                                },
+                                                "additionalProperties": false
+                                            }
+                                        },
+                                        "address": {
+                                            "$ref": "#/$defs/address"
+                                        },
+                                        "contactFullName": {
+                                            "type": "string"
+                                        },
+                                        "contactPhoneNumber": {
+                                            "$ref": "#/$defs/phoneNumber"
+                                        }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            },
+                            "declarations": {
+                                "type": "object",
+                                "description": "Unless otherwise noted, URLA section 5",
+                                "properties": {
+                                    "citizenshipResidencyType": {
+                                        "type": "string",
+                                        "description": "A value from a MISMO prescribed list that specifies the U.S. citizenship or alien status of the individual.  URLA form field 1a.5",
+                                        "enum": [
+                                            "NonPermanentResidentAlien",
+                                            "PermanentResidentAlien",
+                                            "USCitizen"
+                                        ]
+                                    },
+                                    "intentToOccupyType": {
+                                        "type": "string",
+                                        "description": "Borrower's answer to the question: Do you intend to occupy the property as your primary residence?  URLA form field 5a.1",
+                                        "enum": [
+                                            "No",
+                                            "Yes"
+                                        ]
+                                    },
+                                    "homeownerPastThreeYearsType": {
+                                        "type": "string",
+                                        "description": "Borrower's answer to the question: Have you had an ownership interest in a property in the last three years?.  URLA form field 5a.1.1",
+                                        "enum": [
+                                            "No",
+                                            "Yes"
+                                        ]
+                                    },
+                                    "priorPropertyUsageType": {
+                                        "type": "string",
+                                        "description": "A value from a MISMO prescribed list that specifies the actual usage of the borrower for the previously owned property.  URLA form field 5a.1.2",
+                                        "enum": [
+                                            "Investment",
+                                            "PrimaryResidence",
+                                            "SecondHome"
+                                        ]
+                                    },
+                                    "FHASecondaryResidenceIndicator": {
+                                        "type": "boolean",
+                                        "description": "When true, indicates that the property usage falls under the FHA Secondary Residence policy and guidelines.  URLA form field 5a.1.2"
+                                    },
+                                    "priorPropertyTitleType": {
+                                        "type": "string",
+                                        "description": "A value from a MISMO prescribed list that specifies how the borrower held title to the property.  URLA form field 5a.1.3",
+                                        "enum": [
+                                            "JointWithOtherThanSpouse",
+                                            "JointWithSpouse",
+                                            "Sole"
+                                        ]
+                                    },
+                                    "ULAD:SpecialBorrowerSellerRelationshipIndicator": {
+                                        "type": "boolean",
+                                        "description": "When true, indicates that the borrower has a family relationship or business affiliation with the seller of the property. URLA form field 5a.2"
+                                    },
+                                    "undisclosedBorrowedFundsIndicator": {
+                                        "type": "boolean",
+                                        "description": "When true, indicates that some or all of the closing funds or down payment is borrowed or provided by another party, including the seller, and not disclosed on the mortgage loan application.  URLA form field 5a.3"
+                                    },
+                                    "undisclosedBorrowedFundsAmount": {
+                                        "type": "number",
+                                        "description": "The amount of the closing funds or down payment that is borrowed or provided by another party, including the seller, and not disclosed on the mortgage loan application. URLA form field 5a.3.1"
+                                    },
+                                    "undisclosedMortgageApplicationIndicator": {
+                                        "type": "boolean",
+                                        "description": "When true, indicates the borrower will apply for a mortgage loan on a property that is not the subject property on or before closing of this transaction that is not disclosed on this application.  URLA form field 5a.4.1"
+                                    },
+                                    "undisclosedCreditApplicationIndicator": {
+                                        "type": "boolean",
+                                        "description": "When true, indicates the borrower will apply for other credit (not mortgage loan) prior to closing the mortgage transaction. URLA form field 5a.4.2"
+                                    },
+                                    "propertyProposedCleanEnergyLienIndicator": {
+                                        "type": "boolean",
+                                        "description": "When true, indicates that the property will be subject to a property clean energy lien that could take precedence over the first mortgage lien including PACE loan or other similar liens. URLA form field 5a.5\n\nTODO: This may be better in the Subject Property section"
+                                    },
+                                    "undisclosedComakerOfNoteIndicator": {
+                                        "type": "boolean",
+                                        "description": "When true, indicates that the Borrower is a co-signer or guarantor on other debts not disclosed on the loan application. URLA form field 5b.1"
+                                    },
+                                    "outstandingJudgmentsIndicator": {
+                                        "type": "boolean",
+                                        "description": "When true, indicates the borrower has outstanding judgments against him or her. URLA form field 5b.2"
+                                    },
+                                    "presentlyDelinquentIndicator": {
+                                        "type": "boolean",
+                                        "description": "When true, indicates the borrower is presently delinquent or in default on Federal debt or other loan mortgage, financial obligation, bond or loan guarantee. URLA form field 5b.3"
+                                    },
+                                    "partyToLawsuitIndicator": {
+                                        "type": "boolean",
+                                        "description": "When true, indicates the borrower is a party to a lawsuit.  URLA form field 5b.4"
+                                    },
+                                    "priorPropertyDeedInLieuConveyedIndicator": {
+                                        "type": "boolean",
+                                        "description": "When true, indicates the Borrower has conveyed property as deed in lieu of foreclosure within the past seven years. URLA form field 5b.5"
+                                    },
+                                    "priorPropertyShortSaleCompletedIndicator": {
+                                        "type": "boolean",
+                                        "description": "When true, indicates the Borrower has completed a short sale or pre-foreclosure sale where the Lender accepted less than full value for the outstanding mortgage balance within the past seven years. URLA form field 5b.6"
+                                    },
+                                    "priorPropertyForeclosureCompletedIndicator": {
+                                        "type": "boolean",
+                                        "description": "When true, indicates the borrower has had property foreclosed upon within the past seven years. URLA form field 5b.7"
+                                    },
+                                    "bankruptcyIndicator": {
+                                        "type": "boolean",
+                                        "description": "When true, indicates that the borrower declared bankruptcy within the past seven years. URLA form field 5b.8"
+                                    },
+                                    "bankruptcies": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "description": "Chapter under which bankruptcy has been filed. URLA form field 5b.8.1",
+                                            "enum": [
+                                                "ChapterEleven",
+                                                "ChapterSeven",
+                                                "ChapterThirteen",
+                                                "ChapterTwelve"
+                                            ]
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false
+                            },
+                            "monthlyRetirementAmount": {
+                                "type": "number",
+                                "description": "The total monthly amount of retirement funds provided to an individual that can include pension, 401K, IRA, etc.  URLA form field 1e.2"
+                            },
+                            "URLABorrowerTotalOtherIncomeAmount": {
+                                "type": "number",
+                                "description": "The total monthly amount of the borrower's gross income from non-employment sources.  URLA form field 1e.3"
+                            },
+                            "incomeOtherSources": {
+                                "type": "array",
+                                "description": "In a break from the design of the URLA/ULAD, this is non-employment income only.  Employment income should be indicated with the employer.",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "incomeType": {
+                                            "type": "string",
+                                            "description": "A value from a MISMO prescribed list that specifies borrower income items on a mortgage loan application. URLA form field 1e.1",
+                                            "enum": [
+                                                "Alimony",
+                                                "AutomobileAllowance",
+                                                "BoarderIncome",
+                                                "CapitalGains",
+                                                "ChildSupport",
+                                                "DefinedContributionPlan",
+                                                "Disability",
+                                                "DividendsInterest",
+                                                "FosterCare",
+                                                "HousingAllowance",
+                                                "MortgageCreditCertificate",
+                                                "MortgageDifferential",
+                                                "NotesReceivableInstallment",
+                                                "Other",
+                                                "Pension",
+                                                "PublicAssistance",
+                                                "Royalties",
+                                                "SeparateMaintenance",
+                                                "SocialSecurity",
+                                                "Trust",
+                                                "Unemployment",
+                                                "VABenefitsNonEducational"
+                                            ]
+                                        },
+                                        "currentIncomeMonthlyTotalAmount": {
+                                            "type": "number",
+                                            "description": "The monthly total amount for the specified Income Item. URLA form field 1e.2"
+                                        }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            },
+                            "monthlyMilitaryEntitlementsAmount": {
+                                "type": "number",
+                                "description": "The total monthly amount of funds provided or credited to military personnel for specific needs, such as food or housing, over and above base pay. URLA form field 1b.10.5"
+                            },
+                            "militaryService": {
+                                "type": "object",
+                                "description": "URLA section 7",
+                                "properties": {
+                                    "selfDeclaredMilitaryServiceIndicator": {
+                                        "type": "boolean",
+                                        "description": "When true, indicates that the individual is self-reporting as having served, or is currently serving in the US Armed Forces. Includes enlisted persons that may not have served in ‘Active Duty’ status, and service in the National Guard or Reserves. Also includes ‘surviving spouses’ of Veterans who served and were Missing In Action (MIA) /Killed In Action (KIA), who died of a condition or impairment connected to their service in the Armed Forces (as determined by VA or DoD), or who self-report that their spouse’s service and connected disability/impairment entitles them to benefits from the VA.\n"
+                                    },
+                                    "militaryStatusType": {
+                                        "type": "string",
+                                        "description": "A value from a MISMO prescribed list that specifies duty status of current or former military personnel.",
+                                        "enum": [
+                                            "ActiveDuty",
+                                            "ReserveNationalGuardNeverActivated",
+                                            "Veteran"
+                                        ]
+                                    },
+                                    "spousalVABenefitsEligibilityIndicator": {
+                                        "type": "boolean",
+                                        "description": "When true, indicates that the individual is a surviving spouse of a Veteran who served and was Missing In Action (MIA) /Killed In Action (KIA), a Veteran who died of a condition or impairment connected to his/her service in the Armed Forces (as determined by VA or DoD), or a Veteran whose service connected disability/impairment, they believe, entitles them to benefits from the VA."
+                                    },
+                                    "dmlitaryServiceExpectedCompletionDate": {
+                                        "type": "string",
+                                        "description": "The date the active military term of service is scheduled to end.",
+                                        "format": "date",
+                                        "pattern": "yyyy-MM-dd"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "ULAD:URLAAccountBasedAssetTotalAmount": {
+                    "type": "number",
+                    "description": "The total dollar amount of assets associated with an account. Collected in the Total field for Section 2a on the URLA.  URLA form field 2a.5"
+                },
+                "accounts": {
+                    "type": "array",
+                    "description": "Assets - Bank Accounts, Retirement, and Other Accounts You Have.  URLA section 2a\n\nIn the ULAD, these are also referred to as \"assets\", but the name is changed here to disambiguate between account-based assets and non-account-based assets.",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "accountSequenceNumber": {
+                                "type": "number"
+                            },
+                            "accountType": {
+                                "type": "string",
+                                "description": "A value from a MISMO prescribed list that specifies financial assets in a mortgage loan transaction. Assets may be either liquid or fixed and are associated with a corresponding asset amount.",
+                                "enum": [
+                                    "Bond",
+                                    "BridgeLoanNotDeposited",
+                                    "CertificateOfDepositTimeDeposit",
+                                    "CheckingAccount",
+                                    "IndividualDevelopmentAccount",
+                                    "LifeInsurance",
+                                    "MoneyMarketFund",
+                                    "MutualFund",
+                                    "RetirementFund",
+                                    "SavingsAccount",
+                                    "Stock",
+                                    "StockOptions",
+                                    "TrustAccount"
+                                ]
+                            },
+                            "fullName": {
+                                "type": "string",
+                                "description": "The unparsed name of either an individual or a legal entity."
+                            },
+                            "accountIdentifier": {
+                                "type": "string",
+                                "description": "A unique alphanumeric string identifying an asset."
+                            },
+                            "accountCashOrMarketValueAmount": {
+                                "type": "number",
+                                "description": "The cash or market value amount of the Asset Type. The market value is the price at which an asset is transferred between a willing buyer and a willing seller. Market value and cash values tend to be equal."
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "ULAD:URLANonAccountBasedAssetTotalAmount": {
+                    "type": "number",
+                    "description": "The total dollar amount of assets not associated with an account. Collected in the Total field for Section 2b on the URLA. URLA form field 2b.3"
+                },
+                "assets": {
+                    "type": "array",
+                    "description": "URLA form fields 2b.1 and 2b.2",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "assetSequenceNumber": {
+                                "type": "number"
+                            },
+                            "assetType": {
+                                "type": "string",
+                                "description": "A value from a MISMO prescribed list that specifies financial assets in a mortgage loan transaction. Assets may be either liquid or fixed and are associated with a corresponding asset amount.",
+                                "enum": [
+                                    "Other",
+                                    "PendingNetSaleProceedsFromRealEstateAssets",
+                                    "ProceedsFromSaleOfNonRealEstateAsset",
+                                    "ProceedsFromSecuredLoan",
+                                    "ProceedsFromUnsecuredLoan"
+                                ]
+                            },
+                            "assetTypeOtherDescription": {
+                                "type": "string",
+                                "description": "A free-form text field used to collect additional information when Other is selected as the Asset Type."
+                            },
+                            "assetCashOrMarketValueAmount": {
+                                "type": "number",
+                                "description": "The cash or market value amount of the Asset Type. The market value is the price at which an asset is transferred between a willing buyer and a willing seller. Market value and cash values tend to be equal."
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "purchaseCredits": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "purchaseCreditType": {
+                                "type": "string",
+                                "description": "A value from a MISMO prescribed list that specifies monetary credits commonly accepted as valid sources of borrower funds to close a mortgage loan transaction excluding adding amounts to the note amount.  URLA form field 2b.4",
+                                "enum": [
+                                    "EarnestMoney",
+                                    "EmployerAssistedHousing",
+                                    "LeasePurchaseFund",
+                                    "Other",
+                                    "RelocationFunds",
+                                    "SweatEquity",
+                                    "TradeEquityFromPropertySwap"
+                                ]
+                            },
+                            "purchaseCreditTypeOtherDescription": {
+                                "type": "string",
+                                "description": "A free-form text field used to collect additional information when Other is selected for Purchase Credit Type. URLA form field 2b.4\n\n",
+                                "enum": [
+                                    "LotEquity"
+                                ]
+                            },
+                            "purchaseCreditAmount": {
+                                "type": "number",
+                                "description": "The dollar amount of the Purchase Credit Type related to the loan application. This may be collected on the URLA in Section VII (Details of Transaction - Other Credits - Amount)."
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "liabilities": {
+                    "type": "array",
+                    "description": "Credit Cards, Other Debts, and Leases that You Owe  URLA section 2c",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "liabilitySequenceNumber": {
+                                "type": "number"
+                            },
+                            "liabilityType": {
+                                "type": "string",
+                                "description": "A value from a MISMO prescribed list that represents a financial obligation of an individual or entity. In a mortgage transaction, these are typically related to one or more borrowers.",
+                                "enum": [
+                                    "Installment",
+                                    "LeasePayment",
+                                    "Open30DayChargeAccount",
+                                    "Other",
+                                    "Revolving"
+                                ]
+                            },
+                            "liabilityTypeOtherDescription": {
+                                "type": "string",
+                                "description": "Specifies the other liability type when Other is selected."
+                            },
+                            "fullName": {
+                                "type": "string",
+                                "description": "The unparsed name of either an individual or a legal entity."
+                            },
+                            "liabilityAccountIdentifier": {
+                                "type": "string",
+                                "description": "A unique alphanumeric string identifying the liability."
+                            },
+                            "liabilityUnpaidBalanceAmount": {
+                                "type": "number",
+                                "description": "The amount of the outstanding balance for a Liability Type."
+                            },
+                            "LiabilityPayoffStatusIndicator": {
+                                "type": "boolean",
+                                "description": "When true, indicates that the liability will be paid off at or before closing."
+                            },
+                            "liabilityMonthlyPaymentAmount": {
+                                "type": "number",
+                                "description": "The dollar amount of the monthly payment required on borrower's Liability Type."
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "expenses": {
+                    "type": "array",
+                    "description": "URLA section 2d, Other Liabilities and Expenses\n",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "expenseSequenceNumber": {
+                                "type": "number"
+                            },
+                            "expenseType": {
+                                "type": "string",
+                                "description": "A value from a MISMO prescribed list that specifies items commonly listed as borrower expenses on a mortgage loan transaction.",
+                                "enum": [
+                                    "Alimony",
+                                    "ChildSupport",
+                                    "JobRelatedExpenses",
+                                    "Other",
+                                    "SeparateMaintenanceExpense"
+                                ]
+                            },
+                            "expenseTypeOtherDescription": {
+                                "type": "string",
+                                "description": "A free-form text field used to collect additional information when Other is selected for Expense Type."
+                            },
+                            "expenseMonthlyPaymentAmount": {
+                                "type": "number",
+                                "description": "The dollar amount of the monthly payment required on borrower's Expense Type."
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "ownedProperties": {
+                    "type": "array",
+                    "description": "URLA Section 3  This section asks you to list all properties you currently own and what you owe on them.  If you are refinancing, list the property you are refinancing first.\n\nURLA allows for two properties, the second one only if applicable.",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "ownedPropertySequenceNumber": {
+                                "type": "number"
+                            },
+                            "ownedPropertySubjectIndicator": {
+                                "type": "boolean",
+                                "description": "When true, indicates that the owned property is the subject property."
+                            },
+                            "address": {
+                                "$ref": "#/$defs/address"
+                            },
+                            "propertyValuationAmount": {
+                                "type": "number",
+                                "description": "Statement of value of the property from a valid property valuation source."
+                            },
+                            "ownedPropertyDispositionStatusType": {
+                                "type": "string",
+                                "description": "A value from a MISMO prescribed list that specifies the intended disposition of an owned real property.",
+                                "enum": [
+                                    "PendingSale",
+                                    "Retain",
+                                    "Sold"
+                                ]
+                            },
+                            "propertyUsageType": {
+                                "type": "string",
+                                "description": "A value from a MISMO prescribed list that specifies the intended usage of the property by the borrower.",
+                                "enum": [
+                                    "Investment",
+                                    "Other",
+                                    "PrimaryResidence",
+                                    "SecondHome"
+                                ]
+                            },
+                            "propertyUsageTypeOtherDescription": {
+                                "type": "string"
+                            },
+                            "ownedPropertyMaintenanceExpenseAmount": {
+                                "type": "number",
+                                "description": "The total monthly amount for insurance, property taxes, association dues and other housing expenses on the owned real property."
+                            },
+                            "ownedPropertyRentalIncomeGrossAmount": {
+                                "type": "number",
+                                "description": "The amount of revenue generated by the owned property from rent on a monthly basis."
+                            },
+                            "ownedPropertyRentalIncomeNetAmount": {
+                                "type": "number",
+                                "description": "The amount of the rental income that is net of mortgage payments, insurance, maintenance, taxes, and miscellaneous expenses that is generated by the owned property on a monthly basis."
+                            },
+                            "REOLiabilities": {
+                                "type": "array",
+                                "description": "The current liabilities/mortgages for real estate owned.  URLA fields 3a.9 - 3a.15",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "REOLiabilitySequenceNumber": {
+                                            "type": "number"
+                                        },
+                                        "REOLiabilityCreditorName": {
+                                            "type": "string",
+                                            "description": "The unparsed name of either an individual or a legal entity. URLA form field 3a.9"
+                                        },
+                                        "REOLiabilityAccountIdentifier": {
+                                            "type": "string",
+                                            "description": "A unique alphanumeric string identifying the liability. URLA form field 3a.10"
+                                        },
+                                        "REOLiabilityType": {
+                                            "type": "string",
+                                            "description": "A value from a MISMO prescribed list that represents a financial obligation of an individual or entity. In a mortgage transaction, these are typically related to one or more borrowers. URLA form field 3a.11",
+                                            "enum": [
+                                                "HELOC",
+                                                "MortgageLoan"
+                                            ]
+                                        },
+                                        "REOLiabilityMonthlyPaymentAmount": {
+                                            "type": "number",
+                                            "description": "The dollar amount of the monthly payment required on borrower's Liability Type. URLA form field 3a.11"
+                                        },
+                                        "REOLiabilityUnpaidBalanceAmount": {
+                                            "type": "number",
+                                            "description": "The amount of the outstanding balance for a Liability Type. URLA form field 3a.12"
+                                        },
+                                        "REOLiabilityPayoffStatusIndicator": {
+                                            "type": "boolean",
+                                            "description": "When true, indicates that the liability will be paid off at or before closing. URLA form field 3a.13"
+                                        },
+                                        "REOLiabilityMortgageType": {
+                                            "type": "string",
+                                            "description": "A value from a MISMO prescribed list that specifies the private or public sector entity under whose guidelines the mortgage is originated. URLA form field 3a.14",
+                                            "enum": [
+                                                "Conventional",
+                                                "FHA",
+                                                "Other",
+                                                "USDARuralDevelopment",
+                                                "VA"
+                                            ]
+                                        },
+                                        "REOLabilityHELOCMaximumBalanceAmount": {
+                                            "type": "number",
+                                            "description": "The maximum dollar amount of credit available to the borrower on a Home Equity Line of Credit (HELOC) regardless of whether the borrower has accessed the amount. URLA form field 3a.15"
+                                        }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "loanAndPropertyInformation": {
+                    "type": "object",
+                    "properties": {
+                        "borrowerRequestedLoanAmount": {
+                            "type": "number",
+                            "description": "The amount of the loan initially requested by the borrower. This amount may include financed PMI, MIP and Funding Fees. URLA form field 4a.1"
+                        },
+                        "noteAmount": {
+                            "type": "number",
+                            "description": "The amount to be repaid as disclosed on the note. URLA form field 4a.1"
+                        },
+                        "loanPurposeType": {
+                            "type": "string",
+                            "description": "Specifies the purpose for which the loan proceeds will be used. URLA form field 4a.2",
+                            "enum": [
+                                "Other",
+                                "Purchase",
+                                "Refinance"
+                            ]
+                        },
+                        "subjectPropertyAddress": {
+                            "$ref": "#/$defs/address"
+                        },
+                        "financedUnitCount": {
+                            "type": "number",
+                            "description": "The number of individual family dwelling units being financed in the subject property. URLA form field 4a.4"
+                        },
+                        "propertyEstimatedValueAmount": {
+                            "type": "number",
+                            "description": "A statement of the estimated present market value of the property that is from the borrower or loan originator. URLA form field 4a.5"
+                        },
+                        "propertyValuationAmount": {
+                            "type": "number",
+                            "description": "Statement of value of the property from a valid property valuation source. URLA form field 4a.5\n"
+                        },
+                        "propertyUsageType": {
+                            "type": "string",
+                            "description": "A value from a MISMO prescribed list that specifies the intended usage of the property by the borrower. URLA form field 4a.6",
+                            "enum": [
+                                "Investment",
+                                "PrimaryResidence",
+                                "SecondHome"
+                            ]
+                        },
+                        "FHASecondaryResidenceIndicator": {
+                            "type": "boolean",
+                            "description": "When true, indicates that the property usage falls under the FHA Secondary Residence policy and guidelines. URLA form field 4a.6.1\n"
+                        },
+                        "propertyMixedUsageIndicator": {
+                            "type": "boolean",
+                            "description": "When true, indicates the subject property includes commercial space set aside to operate a business. URLA form field 4a.7"
+                        },
+                        "constructionMethodType": {
+                            "type": "string",
+                            "description": "Describes the construction process for the main dwelling unit of the subject property. URLA form field 4a.8\n\nDespite being a yes/no question on the URLA, the value used in the ULAD is either \"Manufactured\" or (null).  The question asked on the form is \"Is the property a manufactured home? (e.g., a factory built dwelling built on a permanent chassis)\".",
+                            "enum": [
+                                "Manufactured"
+                            ]
+                        },
+                        "rentalEstimatedGrossMonthlyRentAmount": {
+                            "type": "number",
+                            "description": "The amount of the estimated gross monthly rental income derived from a single rental unit or property. URLA form field 4c.1"
+                        },
+                        "relatedLoans": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "description": "Other New Mortgage Loans on the Property You are Buying or Refinancing.  URLA from section 4b\n\nUsed only to indicate all new loans being taken out, e.g. a HELOC with a refi.  Other pre-existing leins should be indicated in the REO section.",
+                                "properties": {
+                                    "loanRoleType": {
+                                        "type": "string",
+                                        "description": "Use the LoanRoleType = RelatedLoan to describe a loan linked to the subject loan and collaterized by the same property. \nUse the LoanRoleType = SubjectLoan to describe the loan that is the object of the transaction, upon which the receiving business partner will take some action.\n",
+                                        "enum": [
+                                            "RelatedLoan",
+                                            "SubjectLoan"
+                                        ]
+                                    },
+                                    "notePayToFullName": {
+                                        "type": "string",
+                                        "description": "The unparsed name of either an individual or a legal entity.  URLA form field 4b.1"
+                                    },
+                                    "lienPriorityType": {
+                                        "type": "string",
+                                        "description": "A value from a MISMO prescribed list that specifies the priority of the lien against the subject property. URLA form field 4b.2",
+                                        "enum": [
+                                            "FirstLien",
+                                            "FourthLien",
+                                            "SecondLien",
+                                            "ThirdLien"
+                                        ]
+                                    },
+                                    "initialPrincipalAndInterestPaymentAmount": {
+                                        "type": "number",
+                                        "description": "The dollar amount of the principal and interest payment as stated on the Note. The principal and interest payment is usually obtained using the loan amount and interest rate to arrive at full amortization during the loan term. URLA form field 4b.3"
+                                    },
+                                    "noteAmount": {
+                                        "type": "number",
+                                        "description": "The amount to be repaid as disclosed on the note. URLA form field 4b.4"
+                                    },
+                                    "HELOCBalanceAmount": {
+                                        "type": "number",
+                                        "description": "The outstanding balance of the home equity line of credit (HELOC). URLA form field 4b.4"
+                                    },
+                                    "HELOCIndicator": {
+                                        "type": "boolean",
+                                        "description": "When true, indicates that the loan is a Home Equity Line of Credit (HELOC). URLA form field 4b.5"
+                                    },
+                                    "HELOCMaximumBalanceAmount": {
+                                        "type": "number",
+                                        "description": "The maximum dollar amount of credit available to the borrower on a Home Equity Line of Credit (HELOC) regardless of whether the borrower has accessed the amount. URLA form field 4b.5"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        },
+                        "rentalEstimatedNetMonthlyRentAmount": {
+                            "type": "number",
+                            "description": "The amount of the estimated net monthly rental income derived from a single rental unit or property. URLA form field 4c.2"
+                        },
+                        "giftsOrGrants": {
+                            "type": "array",
+                            "description": "URLA section 4d",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "assetType": {
+                                        "type": "string",
+                                        "description": "A value from a MISMO prescribed list that specifies financial assets in a mortgage loan transaction. Assets may be either liquid or fixed and are associated with a corresponding asset amount. URLA form field 4d.1",
+                                        "enum": [
+                                            "GiftOfCash",
+                                            "GiftOfPropertyEquity",
+                                            "Grant"
+                                        ]
+                                    },
+                                    "ULAD:IncludedInAssetAccountIndicator": {
+                                        "type": "boolean",
+                                        "description": "When true, indicates that item is included in the value of an asset account being reported by a borrower. URLA form field 4d.2"
+                                    },
+                                    "fundsSourceType": {
+                                        "type": "string",
+                                        "description": "A value from a MISMO prescribed list that specifies the party providing the associated funds. URLA form field 4d.3",
+                                        "enum": [
+                                            "CommunityNonProfit",
+                                            "Employer",
+                                            "FederalAgency",
+                                            "Lender",
+                                            "LocalAgency",
+                                            "Other",
+                                            "Relative",
+                                            "ReligiousNonProfit",
+                                            "StateAgency",
+                                            "UnmarriedPartner"
+                                        ]
+                                    },
+                                    "fundsSourceTypeOtherDescription": {
+                                        "type": "string",
+                                        "description": "A free-form text field that specifies the enumeration when the value of Other is used for Funds Source Type. URLA form field 4d.3"
+                                    },
+                                    "cashOrMarketValueAmount": {
+                                        "type": "number",
+                                        "description": "The cash or market value amount of the Asset Type. The market value is the price at which an asset is transferred between a willing buyer and a willing seller. Market value and cash values tend to be equal. URLA from 4d.4"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "x_OriginatingCompany"
+            ]
+        }
+    },
+    "additionalProperties": false,
+    "$defs": {
+        "name": {
+            "type": "object",
+            "properties": {
+                "firstName": {
+                    "type": "string",
+                    "description": "The first name of the individual represented by the parent object."
+                },
+                "middleName": {
+                    "type": "string",
+                    "description": "The middle name of the individual represented by the parent object."
+                },
+                "lastName": {
+                    "type": "string",
+                    "description": "The last name of the individual represented by the parent object."
+                },
+                "suffix": {
+                    "type": "string",
+                    "description": "The name suffix of the individual represented by the parent object. (E.g., JR = Junior, SR = Senior, etc.).\n"
+                }
+            },
+            "additionalProperties": false
+        },
+        "address": {
+            "type": "object",
+            "properties": {
+                "addressLineText": {
+                    "type": "string",
+                    "description": "The address with the address number, pre-directional, street name, post-directional, address unit designators and address unit value.  URLA form field 1a.13.1"
+                },
+                "addressUnitIdentifier": {
+                    "type": "string",
+                    "description": "The identifier value associated with the Secondary Address Unit Designator. Example: 123, C, B1C, etc.  URLA form field 1a.13.2"
+                },
+                "addressUnitDesignator": {
+                    "type": "string",
+                    "description": "A value from a MISMO prescribed list that specifies a further level of detail for a street address, for example, Suite or Unit. This list is based on the USPS Publication 28 on Postal Addressing Standards with the addition of Condo based on mortgage industry need.  URLA form field 1a.13.2",
+                    "enum": [
+                        "Apartment",
+                        "Basement",
+                        "Building",
+                        "Condo",
+                        "Department",
+                        "Floor",
+                        "Front",
+                        "Hangar",
+                        "Key",
+                        "Lobby",
+                        "Lot",
+                        "Lower",
+                        "Office",
+                        "Penthouse",
+                        "Pier",
+                        "Rear",
+                        "Room",
+                        "Side",
+                        "Space",
+                        "Stop",
+                        "Suite",
+                        "Trailer",
+                        "Unit",
+                        "Upper"
+                    ]
+                },
+                "cityName": {
+                    "type": "string",
+                    "description": "The name of the city or Military APO FPO designation.  URLA form field 1a.13.3"
+                },
+                "stateCode": {
+                    "type": "string",
+                    "maxLength": 2,
+                    "description": "The two-character representation of the US state, US Territory, Canadian Province, Military Address abbreviation of AE, AP, AA or Territory.  URLA form field 1a.13.4"
+                },
+                "postalCode": {
+                    "type": "string",
+                    "description": "The postal code (ZIP Code in the US) for the address. ZIP Code may be either 5 or 9 digits.  URLA form field 1a.13.5"
+                },
+                "countyName": {
+                    "type": "string",
+                    "description": "The name of the county within a state. (Designator Name based on FIPS Publication 6-4)"
+                },
+                "countryCode": {
+                    "type": "string",
+                    "maxLength": 2,
+                    "description": "The two-character representation of the country.  URLA form field 1a.13.6"
+                }
+            },
+            "additionalProperties": false
+        },
+        "phoneNumber": {
+            "type": "object",
+            "properties": {
+                "phoneNumberUsageType": {
+                    "type": "string",
+                    "enum": [
+                        "Home",
+                        "Mobile",
+                        "Work"
+                    ],
+                    "description": "A value from a MISMO prescribed list that specifies the location associated with the Contact Point Type (for example, Phone).\n"
+                },
+                "x_phoneNumberType": {
+                    "type": "string",
+                    "description": "The type of phone service as determined by a verification platform.  Usually \"cellular\" or \"landline\".  Many borrowers are using mobile devices as their \"home\" phone, there are slightly different regulations between cellular and landlines.  This also lets us know if a number is textable."
+                },
+                "phoneNumber": {
+                    "type": "string",
+                    "description": "The telephone number for the contact.  Unformatted for now."
+                }
+            },
+            "additionalProperties": false
+        }
+    }
+}
